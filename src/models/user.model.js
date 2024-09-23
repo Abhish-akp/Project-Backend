@@ -59,7 +59,7 @@ userSchema.pre("save",async function(next) {
     if(this.isModified("password")) // send in string always
         return next();
 
-    this.password = bycrpt.hash(this.password,10)
+    this.password = await bycrpt.hash(this.password,10)
     next()
 })
 
@@ -67,7 +67,7 @@ userSchema.methods.isPasswordCorrect = async function (password) {
    return await bycrpt.compare(password, this.password)    
 }
 
-userSchema.methods.generateAccess.Token = function() {
+userSchema.methods.generateAccessToken = function(){
     return jwt.sign({
         _id: this._id,
         email: this.email,
@@ -81,8 +81,9 @@ userSchema.methods.generateAccess.Token = function() {
     )
 }
 
-userSchema.methods.generateRefresh.Token = function() {
-    return jwt.sign({
+userSchema.methods.generateRefreshToken = function(){
+    return jwt.sign(
+        {
         _id: this._id
         },
         process.env.REFRESH_TOKEN_SECRET,
@@ -92,4 +93,4 @@ userSchema.methods.generateRefresh.Token = function() {
     )
 }
 
-export const User = mongoose.model("User",userSchema);
+export const User = mongoose.model("User",userSchema)
