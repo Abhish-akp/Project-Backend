@@ -1,4 +1,3 @@
-// Example if it's in D:\Project\src\utils\asyncHandler.js
 import { asyncHandler } from '../utils/asyncHandler.js';
 import {ApiError} from "../utils/ApiError.js";
 import { User} from "../models/user.model.js";
@@ -10,7 +9,6 @@ import { ApiResponse } from '../utils/ApiResponse.js';
    //get user detail from frontend 
 
     const {fullname,email,username,password} = req.body
-    console.log(email);
 
    // validation -- not empty
 
@@ -18,14 +16,14 @@ import { ApiResponse } from '../utils/ApiResponse.js';
   //     throw new ApiError(400, "fullname is required")
   //  }
   // another way of checking multiple validation
-   if( [fullname,email,username,password].some((field) =>
+   if( [fullname,email,avatar,username,password].some((field) =>
         field?.trim() === "")
    ) {
       throw new ApiError(400,"all fields are required")
    }
 
    // check if user already exit :- username, email
-   const existedUser = User.findOne({
+   const existedUser = await User.findOne({
     $or: [{username},{email}]
    })
     
@@ -35,7 +33,13 @@ import { ApiResponse } from '../utils/ApiResponse.js';
    // check for images, avatar
 
    const avatarLocalPath = req.files?.avatar[0]?.path
-   const coverImageLocalPath = req.files?.coverImage[0]?.path;
+ //  const coverImageLocalPath = req.files?.coverImage[0]?.path;
+   console.log(req.files);
+   let coverImageLocalPath;
+   if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length >0)
+   {
+      coverImageLocalPath = req.files.coverImage[0].path
+   }
 
    if(!avatarLocalPath){
     throw new ApiError(400, "Avatar file is required")
@@ -79,7 +83,7 @@ import { ApiResponse } from '../utils/ApiResponse.js';
     new ApiResponse(200, createdUser, "user registered succesfully")
    )
    // return res
-   
+
 
 
 });
